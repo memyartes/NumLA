@@ -1,0 +1,29 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+stages:
+  - check
+  - test
+
+check:
+  stage: check
+  image: cr.ct.itmo.ru/numla/lab-container
+  variables:
+    PYTEST_ADDOPTS: "--color=yes -ra -p no:cacheprovider"
+  script:
+    - ruff check src --select F401,F841
+    - python -m compileall -q src
+    - notebooks=$(find . -name "*.ipynb")
+    - if [ -n "$notebooks" ]; then nbqa ruff $notebooks --select F401,F841; fi
+    - if [ -n "$notebooks" ]; then jupyter nbconvert --to notebook --execute $notebooks --ExecutePreprocessor.timeout=52 --output-dir=tmp_nb_output/; fi
+    - rm -rf tmp_nb_output
+
+test:
+  stage: test
+  image: cr.ct.itmo.ru/numla/hw-checker/pca:latest
+  variables:
+    PYTEST_ADDOPTS: "--color=yes -ra -p no:cacheprovider"
+  script:
+    - cp -r "$CI_PROJECT_DIR/src" /workspace/src
+    - cd /workspace && python -m pytest tests/

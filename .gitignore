@@ -1,0 +1,20 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+
+# Test / tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# Virtual envs
+.venv/
+venv/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Analysis output
+figures/
+
+# sklearn dataset cache
+scikit_learn_data/
